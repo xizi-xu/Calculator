@@ -11,31 +11,14 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet weak var display: UILabel!
+    @IBOutlet weak var history: UILabel!
     
     var userIsInTheMiddleOfTypingANumber = false
-    
-    @IBAction func appendDigit(sender: UIButton) {
-        // read which button is pressed
-        let digit = sender.currentTitle!
-        if userIsInTheMiddleOfTypingANumber {
-            // append digits
-            display.text = display.text! + digit
-        } else {
-            display.text = digit
-            userIsInTheMiddleOfTypingANumber = true
-        }
-        //println("digit = \(digit)")
-    }
-    
+    let pi3 = M_PI
+    var clearHistory = true
     var operandStack = Array<Double>()
     
-    @IBAction func enter() {
-        //if a number is entered, a new number will be added to the stack
-        userIsInTheMiddleOfTypingANumber = false
-        operandStack.append(displayValue)
-        println("OperandStack = \(operandStack)")
-    }
-    
+    //computed property
     var displayValue: Double {
         get {
             //wtf is this?
@@ -47,12 +30,55 @@ class ViewController: UIViewController {
         }
     }
     
+    @IBAction func reset() {
+        display.text = ""
+        history.text = ""
+        operandStack = Array<Double>()
+    }
+    
+    @IBAction func appendDigit(sender: UIButton) {
+        // read which button is pressed
+        let digit = sender.currentTitle!
+        
+        if userIsInTheMiddleOfTypingANumber {
+            // only one dot is added to the number
+            if (display.text!.rangeOfString(".") == nil && digit == ".") || digit != "." {
+                // append digits
+                display.text = display.text! + digit
+                history.text = history.text! + digit + " "
+            }
+        } else {
+            display.text = digit
+            userIsInTheMiddleOfTypingANumber = true
+            history.text = clearHistory ? digit + " " : history.text! + digit
+            clearHistory = false
+        }
+        //println("digit = \(digit)")
+    }
+    
+    @IBAction func enter() {
+        //if a number is entered, a new number will be added to the stack
+        userIsInTheMiddleOfTypingANumber = false
+        operandStack.append(displayValue)
+        println("OperandStack = \(operandStack)")
+        history.text = history.text!
+    }
+
+    
     @IBAction func operate(sender: UIButton) {
         let operation = sender.currentTitle!
+        history.text = history.text! + " " + operation
+        clearHistory = true
         if userIsInTheMiddleOfTypingANumber {
             enter()
         }
+        
         switch operation {
+            case "π":
+                displayValue = pi3
+                enter()
+            case "cos": performOperationSingle {cos($0)}
+            case "sin": performOperationSingle {sin($0)}
             case "√": performOperationSingle {sqrt($0)}
             case "÷": performOperation {$1 / $0} //if this is the only argument, no () needed
             case "−": performOperation(){$1 - $0} //if this is the last argument, it can be outside ()
@@ -75,14 +101,14 @@ class ViewController: UIViewController {
     }
     
     func performOperationSingle(operation: Double -> Double) {
-        if operandStack.count >= 2 {
+        if operandStack.count >= 1 {
             displayValue = operation(operandStack.removeLast())
             enter()
         }
     }
+
 //    func multiply(op1: Double, op2: Double) -> Double {
 //        return op1 * op2
 //    }
-
 }
 

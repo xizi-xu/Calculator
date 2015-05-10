@@ -16,23 +16,28 @@ class ViewController: UIViewController {
     var userIsInTheMiddleOfTypingANumber = false
     var operandStack = Array<Double>()
     let pi3 = M_PI
-    var clearHistory = true
+    var clearHistory = false
     var performed = false
     
     //computed property
-    var displayValue: Double {
+    var displayValue: Double? {
         get {
-            //wtf is this?
-            return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
+            // check if display.text is nil
+            if let temp = NSNumberFormatter().numberFromString(display.text!) {
+                return temp.doubleValue
+            } else {
+                return nil
+            }
+            // return NSNumberFormatter().numberFromString(display.text!)!.doubleValue
         }
         set {
-            display.text = "\(newValue)"
+            display.text = "\(newValue!)"
             userIsInTheMiddleOfTypingANumber = false
         }
     }
     
     @IBAction func reset() {
-        display.text = ""
+        display.text = "0"
         history.text = ""
         operandStack = Array<Double>()
     }
@@ -50,11 +55,11 @@ class ViewController: UIViewController {
     }
     
     @IBAction func signReverse() {
-        if displayValue != 0 {
+        if displayValue != nil {
             if userIsInTheMiddleOfTypingANumber {
                 display.text = "-" + display.text!
             } else {
-                displayValue *= -1
+                displayValue = -1 * displayValue!
             }
         }
     }
@@ -79,17 +84,19 @@ class ViewController: UIViewController {
     
     @IBAction func enter() {
         //if a number is entered, a new number will be added to the stack
-        operandStack.append(displayValue)
-        println("OperandStack = \(operandStack)")
-        
-        userIsInTheMiddleOfTypingANumber = false
-        if performed {
-            history.text = history.text! + " = "
-            performed = false
+        if displayValue != nil {
+            operandStack.append(displayValue!)
+            println("OperandStack = \(operandStack)")
+            
+            userIsInTheMiddleOfTypingANumber = false
+            if performed {
+                history.text = history.text! + " = "
+                performed = false
+            }
+            history.text = history.text! + display.text! + " "
         }
-        history.text = history.text! + display.text! + " "
     }
-
+    
     
     @IBAction func operate(sender: UIButton) {
         let operation = sender.currentTitle!
@@ -97,22 +104,25 @@ class ViewController: UIViewController {
             enter()
         }
         
-        history.text = history.text! + " " + operation
-        clearHistory = true
+        if operation != "π" {
+            history.text = history.text! + " " + operation
+            clearHistory = true
+        }
+        
         switch operation {
-            case "π":
-                displayValue = pi3
-                enter()
-            case "cos":performOperationSingle {cos($0)}
-            case "sin":performOperationSingle {sin($0)}
-            case "√": performOperationSingle {sqrt($0)}
+        case "π":
+            displayValue = pi3
+            enter()
+        case "cos":performOperationSingle {cos($0)}
+        case "sin":performOperationSingle {sin($0)}
+        case "√": performOperationSingle {sqrt($0)}
             
-            case "÷": performOperation {$1 / $0} //if this is the only argument, no () needed
-            case "−": performOperation(){$1 - $0} //if this is the last argument, it can be outside ()
-            case "+": performOperation({$0 + $1}) //swift knows the input and output types
-            case "×": performOperation {$0 * $1}
-            default:
-                break
+        case "÷": performOperation {$1 / $0} //if this is the only argument, no () needed
+        case "−": performOperation(){$1 - $0} //if this is the last argument, it can be outside ()
+        case "+": performOperation({$0 + $1}) //swift knows the input and output types
+        case "×": performOperation {$0 * $1}
+        default:
+            break
         }
     }
     

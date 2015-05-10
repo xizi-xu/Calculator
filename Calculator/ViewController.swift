@@ -14,9 +14,6 @@ class ViewController: UIViewController {
     @IBOutlet weak var history: UILabel!
     
     var userIsInTheMiddleOfTypingANumber = false
-//    var operandStack = Array<Double>()
-//    let pi3 = M_PI
-//    var performed = false
     var clearHistory = false
     
     var brain = CalculatorBrain()
@@ -39,10 +36,8 @@ class ViewController: UIViewController {
     }
     
     @IBAction func reset() {
-//        display.text = "0"
         displayValue = 0
         history.text = ""
-//        operandStack = Array<Double>()
         brain = CalculatorBrain()
     }
     
@@ -88,20 +83,6 @@ class ViewController: UIViewController {
     
     @IBAction func enter() {
         //if a number is entered, a new number will be added to the stack
-//        if displayValue != nil {
-//            operandStack.append(displayValue!)
-//            println("OperandStack = \(operandStack)")
-//            userIsInTheMiddleOfTypingANumber = false
-        
-//            history.text = history.text! + display.text! + " "
-//            
-//            if performed {
-//                history.text = history.text! + " = "
-//                performed = false
-//            }
-//
-//        }
-        
         if displayValue != nil {
             history.text = history.text! + display.text! + " "
             
@@ -123,6 +104,7 @@ class ViewController: UIViewController {
         if let operation = sender.currentTitle {
             if let result = brain.performOperation(operation) {
                 displayValue = result
+                
                 history.text = history.text! + operation + " "
                 if operation != "π" {
                     history.text = history.text! + "= "
@@ -131,49 +113,12 @@ class ViewController: UIViewController {
                 else {
                     clearHistory = false
                 }
+                
             } else {
                 displayValue = 0
                 history.text = ""
             }
         }
-        
-//        if operation != "π" {
-//            history.text = history.text! + " " + operation
-//            clearHistory = true
-//        }
-        
-//        switch operation {
-//        case "π":
-//            displayValue = pi3
-//            enter()
-//        case "cos":performOperationSingle {cos($0)}
-//        case "sin":performOperationSingle {sin($0)}
-//        case "√": performOperationSingle {sqrt($0)}
-//            
-//        case "÷": performOperation {$1 / $0} //if this is the only argument, no () needed
-//        case "−": performOperation(){$1 - $0} //if this is the last argument, it can be outside ()
-//        case "+": performOperation({$0 + $1}) //swift knows the input and output types
-//        case "×": performOperation {$0 * $1}
-//        default:
-//            break
-//        }
-//    }
-//    
-//    func performOperation(operation: (Double, Double) -> Double) {
-//        if operandStack.count >= 2 {
-//            displayValue = operation(operandStack.removeLast(), operandStack.removeLast())
-//            performed = true
-//            enter()
-//        }
-//    }
-//    
-//    func performOperationSingle(operation: Double -> Double) {
-//        if operandStack.count >= 1 {
-//            displayValue = operation(operandStack.removeLast())
-//            performed = true
-//            enter()
-//        }
-//    }
     }
 }
 

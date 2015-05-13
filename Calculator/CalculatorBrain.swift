@@ -18,6 +18,7 @@ class CalculatorBrain {
         case UnaryOperation(String, Double ->Double)
         case BinaryOperation(String, (Double, Double) ->Double)
         case PiValue (String, Double)
+        case Variable(String)
         
         var description: String { //compute property (readonly)
             get {
@@ -30,13 +31,18 @@ class CalculatorBrain {
                     return symbol
                 case .PiValue(let symbol, _):
                     return symbol
+                case .Variable(let symbol):
+                    return symbol
                 }
+                
             }
         }
     }
     
+    
     private var opStack = Array<Op>()   //[Op]()
     private var knownOps = Dictionary<String, Op>() //[String:Op]()
+    var varibaleValues = [String: Double]()
     
     init (){
         func learnOp(op: Op) {knownOps[op.description] = op}
@@ -79,6 +85,10 @@ class CalculatorBrain {
                 
             case .PiValue(_, let pi3):
                 return (pi3, remainingOps)
+                
+            case .Variable(let symbol):
+                var temp_operand = varibaleValues[symbol]
+                return (temp_operand, remainingOps)
             }
             //all cases are handled, so default is not needed
         }
@@ -106,4 +116,8 @@ class CalculatorBrain {
         return evaluate()
     }
     
+    func pushOperand(symbol:String) -> Double? {
+        opStack.append(Op.Variable(symbol))
+        return evaluate()
+    }
 }

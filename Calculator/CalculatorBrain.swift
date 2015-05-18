@@ -25,13 +25,13 @@ class CalculatorBrain {
                 switch self {
                 case .Operand(let operand):
                     return "\(operand)"
-                case .UnaryOperation(let symbol, _):
-                    return symbol
-                case .BinaryOperation(let symbol, _):
-                    return symbol
                 case .PiValue(let symbol, _):
                     return symbol
                 case .Variable(let symbol):
+                    return symbol
+                case .UnaryOperation(let symbol, _):
+                    return symbol
+                case .BinaryOperation(let symbol, _):
                     return symbol
                 }
                 
@@ -39,6 +39,68 @@ class CalculatorBrain {
         }
     }
     
+    var description: String {
+        let (result, reminder) = description(opStack)
+//        println("\(opStack) = \(result) with \(reminder) left over")
+        if result != nil {
+            return result!
+        } else {
+            return "oooops"
+        }
+    }
+    
+    private func description(ops: [Op]) -> (result: String?, remainingOps: [Op]) {
+        if !ops.isEmpty {
+            var remainingOps = ops
+            let op = remainingOps.removeLast()
+            
+            switch op {
+            case .Operand(let operand):
+                return ("\(operand)", remainingOps)
+            case .PiValue(let symbol, _):
+                return (symbol, remainingOps)
+            case .Variable(let symbol):
+                return (symbol, remainingOps)
+                
+            case .UnaryOperation(let operation, _):
+                let opDescription = description(remainingOps)
+                if let operand = opDescription.result {
+                    return ("\(operation)(\(operand))", opDescription.remainingOps)
+                } else {
+                    return ("\(operation)(?)", opDescription.remainingOps)
+                }
+                
+            case .BinaryOperation(let operation, _):
+                // temp returning var
+                var op1 = "?"
+                var op2 = "?"
+                var returningOps = remainingOps
+                // check for first operand
+                let op1Description = description(remainingOps)
+                if let operand1 = op1Description.result {
+                    // update returning var
+                    returningOps = op1Description.remainingOps
+                    op2 = operand1
+                    // check for second operand
+                    let op2Description = description(op1Description.remainingOps)
+                    if let operand2 = op2Description.result {
+                        // update returning var
+                        returningOps = op2Description.remainingOps
+                        op1 = operand2
+                    }
+                    // flip operands if its ÷ or -
+//                    if operation == "÷" || operation == "−" {
+//                        var temp = op1
+//                        op1 = op2
+//                        op2 = temp
+//                    }
+                }
+                return ("(\(op1)" + "\(operation)" + "\(op2))", returningOps)
+            }
+            
+        }
+        return (nil, ops)
+    }
     
     private var opStack = Array<Op>()   //[Op]()
     private var knownOps = Dictionary<String, Op>() //[String:Op]()
@@ -83,8 +145,8 @@ class CalculatorBrain {
                     }
                 }
                 
-            case .PiValue(_, let pi3):
-                return (pi3, remainingOps)
+            case .PiValue(_, let value):
+                return (value, remainingOps)
                 
             case .Variable(let symbol):
                 var temp_operand = varibaleValues[symbol]
@@ -99,7 +161,7 @@ class CalculatorBrain {
     // return needs to be double optional, because operation may not have any operend at the beginning
     func evaluate() -> Double? {
         let (result, reminder) = evaluate(opStack)  // let a tuple be a result instead of a tuple var
-        println("\(opStack) = \(result) with \(reminder) left over")
+//        println("\(opStack) = \(result) with \(reminder) left over")
         return result
     }
     

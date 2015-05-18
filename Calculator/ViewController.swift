@@ -37,7 +37,7 @@ class ViewController: UIViewController {
     
     @IBAction func reset() {
         displayValue = 0
-        history.text = ""
+        history.text = " "
         brain = CalculatorBrain()
     }
     
@@ -76,7 +76,7 @@ class ViewController: UIViewController {
         } else {
             display.text = digit
             userIsInTheMiddleOfTypingANumber = true
-            history.text = clearHistory ? "" : history.text!
+            history.text = clearHistory ? " " : history.text!
             clearHistory = false
         }
     }
@@ -84,14 +84,15 @@ class ViewController: UIViewController {
     @IBAction func enter() {
         //if a number is entered, a new number will be added to the stack
         if displayValue != nil {
-            history.text = history.text! + display.text! + " "
-            
+//            history.text = history.text! + display.text! + " "
             userIsInTheMiddleOfTypingANumber = false
             if let result = brain.pushOperand(displayValue!) {
                 displayValue = result
             } else {
                 displayValue = 0
             }
+            
+            history.text = history.text! + brain.description + " "
         }
     }
     
@@ -104,19 +105,20 @@ class ViewController: UIViewController {
         if let operation = sender.currentTitle {
             if let result = brain.performOperation(operation) {
                 displayValue = result
-                
-                history.text = history.text! + operation + " "
+//                history.text = history.text! + operation + " "
                 if operation != "π" {
-                    history.text = history.text! + "= "
+                    history.text = brain.description + "= "
                     clearHistory = true
                 }
                 else {
+                    history.text = history.text! + brain.description + " "
                     clearHistory = false
                 }
                 
             } else {
                 displayValue = 0
-                history.text = ""
+                history.text = brain.description
+                clearHistory = true
             }
         }
     }
